@@ -1,13 +1,13 @@
 <?php
 /**
- * CsvImport_Form_Mapping class - represents the form on csv-import/index/map-columns.
+ * OhmsImport_Form_Mapping class - represents the form on ohms-import/index/map-columns.
  *
  * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
- * @package CsvImport
+ * @package OhmsImport
  */
 
-class CsvImport_Form_Mapping extends Omeka_Form
+class OhmsImport_Form_Mapping extends Omeka_Form
 {
     private $_itemTypeId;
     private $_columnNames = array();
@@ -23,7 +23,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
     public function init()
     {
         parent::init();
-        $this->setAttrib('id', 'csvimport-mapping');
+        $this->setAttrib('id', 'ohmsimport-mapping');
         $this->setMethod('post'); 
 
         $elementsByElementSetName = $this->_getElementPairs($this->_itemTypeId);
@@ -266,25 +266,25 @@ class CsvImport_Form_Mapping extends Omeka_Form
     }
 
     /**
-     * Get the mappings from one column in the CSV file.
+     * Get the mappings from one column in the OHMS file.
      *
      * Some columns can have multiple mappings; these are represented
      * as an array of maps.
      *
      * @param int $index The subform row index
-     * @param string $columnName The name of the CSV file column
-     * @return CsvImport_ColumnMap|array|null A ColumnMap or an array of ColumnMaps
+     * @param string $columnName The name of the OHMS file column
+     * @return OhmsImport_ColumnMap|array|null A ColumnMap or an array of ColumnMaps
      */
     protected function _getColumnMap($index, $columnName)
     {
         $columnMap = array();
 
         if ($this->_isTagMapped($index)) {
-            $columnMap[] = new CsvImport_ColumnMap_Tag($columnName, $this->_tagDelimiter);
+            $columnMap[] = new OhmsImport_ColumnMap_Tag($columnName, $this->_tagDelimiter);
         }
 
         if ($this->_isFileMapped($index)) {
-            $columnMap[] = new CsvImport_ColumnMap_File($columnName, $this->_fileDelimiter);
+            $columnMap[] = new OhmsImport_ColumnMap_File($columnName, $this->_fileDelimiter);
         }
 
         $elementIds = $this->_getMappedElementId($index);
@@ -295,7 +295,7 @@ class CsvImport_Form_Mapping extends Omeka_Form
                 continue;
             }
             
-            $elementMap = new CsvImport_ColumnMap_Element($columnName, $this->_elementDelimiter);
+            $elementMap = new OhmsImport_ColumnMap_Element($columnName, $this->_elementDelimiter);
             $elementMap->setOptions(array('elementId' => $elementId,
                                          'isHtml' => $isHtml));
             $columnMap[] = $elementMap;

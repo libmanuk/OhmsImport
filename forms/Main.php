@@ -1,13 +1,13 @@
 <?php
 /**
- * CsvImport_Form_Main class - represents the form on csv-import/index/index.
+ * OhmsImport_Form_Main class - represents the form on ohms-import/index/index.
  *
  * @copyright Copyright 2007-2012 Roy Rosenzweig Center for History and New Media
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
- * @package CsvImport
+ * @package OhmsImport
  */
 
-class CsvImport_Form_Main extends Omeka_Form
+class OhmsImport_Form_Main extends Omeka_Form
 {
     private $_columnDelimiter;
     private $_fileDelimiter;
@@ -23,20 +23,20 @@ class CsvImport_Form_Main extends Omeka_Form
     {
         parent::init();
         
-        $this->_columnDelimiter = CsvImport_RowIterator::getDefaultColumnDelimiter();
-        $this->_fileDelimiter = CsvImport_ColumnMap_File::getDefaultFileDelimiter();
-        $this->_tagDelimiter = CsvImport_ColumnMap_Tag::getDefaultTagDelimiter();
-        $this->_elementDelimiter = CsvImport_ColumnMap_Element::getDefaultElementDelimiter();
+        $this->_columnDelimiter = OhmsImport_RowIterator::getDefaultColumnDelimiter();
+        $this->_fileDelimiter = OhmsImport_ColumnMap_File::getDefaultFileDelimiter();
+        $this->_tagDelimiter = OhmsImport_ColumnMap_Tag::getDefaultTagDelimiter();
+        $this->_elementDelimiter = OhmsImport_ColumnMap_Element::getDefaultElementDelimiter();
         
-        $this->setAttrib('id', 'csvimport');
+        $this->setAttrib('id', 'ohmsimport');
         $this->setMethod('post');
 
         $this->_addFileElement();
         $values = get_db()->getTable('ItemType')->findPairsForSelectForm();
         $values = array('' => __('Select Item Type')) + $values;
         
-        //$this->addElement('checkbox', 'omeka_csv_export', array(
-        //    'label' => __('Use an export from Omeka CSV Report'), 
+        //$this->addElement('checkbox', 'omeka_ohms_export', array(
+        //    'label' => __('Use an export from Omeka OHMS Report'), 
         //    'description'=> __('Selecting this will override the options below.'))
         //);
         
@@ -81,7 +81,7 @@ class CsvImport_Form_Main extends Omeka_Form
         $submit->setDecorators(array('ViewHelper',
                                       array('HtmlTag', 
                                             array('tag' => 'div', 
-                                                  'class' => 'csvimportnext'))));
+                                                  'class' => 'ohmsimportnext'))));
                                             
         $this->addElement($submit);
     }
@@ -287,14 +287,14 @@ class CsvImport_Form_Main extends Omeka_Form
         // Prevents race condition.
         $filter = new Zend_Filter_File_Rename($this->_fileDestinationDir
                     . '/' . md5(mt_rand() + microtime(true)));
-        $this->addElement('file', 'csv_file', array(
+        $this->addElement('file', 'ohms_file', array(
             'label' => __('Upload OHMS XML File'),
             'required' => true,
             'validators' => $fileValidators,
             'destination' => $this->_fileDestinationDir,
             'description' => __("Maximum file size is %s.", $size->toString())
         ));
-        $this->csv_file->addFilter($filter);
+        $this->ohms_file->addFilter($filter);
     }
 
     /**
@@ -305,7 +305,7 @@ class CsvImport_Form_Main extends Omeka_Form
         // Too much POST data, return with an error.
         if (empty($post) && (int)$_SERVER['CONTENT_LENGTH'] > 0) {
             $maxSize = $this->getMaxFileSize()->toString();
-            $this->csv_file->addError(
+            $this->ohms_file->addError(
                 __('The file you have uploaded exceeds the maximum post size '
                 . 'allowed by the server. Please upload a file smaller '
                 . 'than %s.', $maxSize));
@@ -366,7 +366,7 @@ class CsvImport_Form_Main extends Omeka_Form
     }
 
     /**
-     * Set the maximum size for an uploaded CSV file.
+     * Set the maximum size for an uploaded OHMS file.
      *
      * If this is not set in the plugin configuration,
      * defaults to the smaller of 'upload_max_filesize' and 'post_max_size'
@@ -388,7 +388,7 @@ class CsvImport_Form_Main extends Omeka_Form
                         : $postMaxSize;
 
         // If the plugin max file size setting is lower, choose it as the strict max size
-        $pluginMaxSizeRaw = trim(get_option(CsvImportPlugin::MEMORY_LIMIT_OPTION_NAME));
+        $pluginMaxSizeRaw = trim(get_option(OhmsImportPlugin::MEMORY_LIMIT_OPTION_NAME));
         if ($pluginMaxSizeRaw != '') {
             if ($pluginMaxSize = $this->_getBinarySize($pluginMaxSizeRaw)) {
                 $strictMaxSize = $strictMaxSize->compare($pluginMaxSize) > 0
