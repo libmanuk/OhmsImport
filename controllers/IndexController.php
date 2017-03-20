@@ -1,12 +1,12 @@
 <?php
 /**
- * CsvImport_IndexController class - represents the Csv Import index controller
+ * OhmsImport_IndexController class - represents the Ohms Import index controller
  *
  * @copyright Copyright 2008-2012 Roy Rosenzweig Center for History and New Media
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
- * @package CsvImport
+ * @package OhmsImport
  */
-class CsvImport_IndexController extends Omeka_Controller_AbstractActionController
+class OhmsImport_IndexController extends Omeka_Controller_AbstractActionController
 {
     protected $_browseRecordsPerPage = 10;
     protected $_pluginConfig = array();
@@ -16,8 +16,8 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
      */
     public function init()
     {
-        $this->session = new Zend_Session_Namespace('CsvImport');
-        $this->_helper->db->setDefaultModelName('CsvImport_Import');
+        $this->session = new Zend_Session_Namespace('OhmsImport');
+        $this->_helper->db->setDefaultModelName('OhmsImport_Import');
     }
 
 
@@ -40,13 +40,13 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             return;
         }
 
-        if (!$form->csv_file->receive()) {
+        if (!$form->ohms_file->receive()) {
             $this->_helper->flashMessenger(__('Error uploading file. Please try again.'), 'error');
             return;
         }
 
 
-        $filePath = $form->csv_file->getFileName();
+        $filePath = $form->ohms_file->getFileName();
 
         $xmlstr = file_get_contents($filePath, true);
 
@@ -66,23 +66,26 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $mediaurl = $ohms->record[0]->media_url;
         $date = $ohms->record[0]->date;
         $xmllocation = $ohms->record[0]->xmllocation;
+        $clip_format = $ohms->record->mediafile->clip_format;
+        $ohmsobjtxt = $ohms->record[0]->transcript;
 
-        $precsvfile = "Dublin Core: Title^Dublin Core: Description^Item Type Metadata: Interview Accession^Item Type Metadata: Interviewer Name^Item Type Metadata: Interviewee Name^Item Type Metadata: OHMS Object^Item Type Metadata: Interview Digital File Name^Item Type Metadata: Interview Date^Item Type Metadata: Interview LC Subject^Item Type Metadata: Interview Keyword\n$dctitle^$dcdescription^$accession^$interviewer^$interviewee^$xmllocation^$mediaurl^$date^$subject^$keyword\n";
+        $preohmsfile = "Dublin Core: Title^Dublin Core: Description^Item Type Metadata: Interview Accession^Item Type Metadata: Interviewer Name^Item Type Metadata: Interviewee Name^Item Type Metadata: OHMS Object^Item Type Metadata: Interview Digital File Name^Item Type Metadata: Interview Date^Item Type Metadata: Interview LC Subject^Item Type Metadata: Interview Keyword^Item Type Metadata: Interview Format^Item Type Metadata: OHMS Object Text\n$dctitle^$dcdescription^$accession^$interviewer^$interviewee^$xmllocation^$mediaurl^$date^$subject^$keyword^$clip_format^$ohmsobjtxt";
 
 
-        $csvfile = str_replace("\n\n", "@", "$precsvfile");
+        $ohmsfile = str_replace("\n\n", "@", "$preohmsfile");
 
         $writefile="$filePath";
 
-        file_put_contents($writefile, $csvfile, LOCK_EX);
+        file_put_contents($writefile, $ohmsfile, LOCK_EX);
 
-        //echo "<pre>$csvfile</pre><p>$filePath</p><p>$writefile</p>";
+        //echo "<pre>$ohmsfile</pre><p>$filePath</p><p>$writefile</p>";
         //die;
 
 
-        $columnDelimiter = $form->getValue('column_delimiter');
+        //$columnDelimiter = $form->getValue('column_delimiter');
+        $columnDelimiter = "^";
 
-        $file = new CsvImport_File($filePath, $columnDelimiter);
+        $file = new OhmsImport_File($filePath, $columnDelimiter);
 
         if (!$file->parse()) {
             $this->_helper->flashMessenger(__('Your file is incorrectly formatted.')
@@ -94,7 +97,7 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
 
 
         $this->session->setExpirationHops(2);
-        $this->session->originalFilename = $_FILES['csv_file']['name'];
+        $this->session->originalFilename = $_FILES['ohms_file']['name'];
         $this->session->filePath = $filePath;
 
         $this->session->columnDelimiter = "^";
@@ -115,13 +118,13 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         $this->session->ownerId = $this->getInvokeArg('bootstrap')->currentuser->id;
 
         // All is valid, so we save settings.
-        set_option(CsvImport_RowIterator::COLUMN_DELIMITER_OPTION_NAME, $this->session->columnDelimiter);
-        set_option(CsvImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, $this->session->elementDelimiter);
-        set_option(CsvImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, $this->session->tagDelimiter);
-        set_option(CsvImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, $this->session->fileDelimiter);
+        set_option(OhmsImport_RowIterator::COLUMN_DELIMITER_OPTION_NAME, $this->session->columnDelimiter);
+        set_option(OhmsImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, $this->session->elementDelimiter);
+        set_option(OhmsImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, $this->session->tagDelimiter);
+        set_option(OhmsImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, $this->session->fileDelimiter);
 
-        if ($form->getValue('omeka_csv_export')) {
-            $this->_helper->redirector->goto('check-omeka-csv');
+        if ($form->getValue('omeka_ohms_export')) {
+            $this->_helper->redirector->goto('check-omeka-ohms');
         }
 
         $this->_helper->redirector->goto('map-columns');
@@ -138,8 +141,8 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             return;
         }
 
-        require_once CSV_IMPORT_DIRECTORY . '/forms/Mapping.php';
-        $form = new CsvImport_Form_Mapping(array(
+        require_once OHMS_IMPORT_DIRECTORY . '/forms/Mapping.php';
+        $form = new OhmsImport_Form_Mapping(array(
             'itemTypeId' => $this->session->itemTypeId,
             'columnNames' => $this->session->columnNames,
             'columnExamples' => $this->session->columnExamples,
@@ -164,16 +167,16 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
             return;
         }
 
-        $csvImport = new CsvImport_Import();
+        $ohmsImport = new OhmsImport_Import();
         foreach ($this->session->getIterator() as $key => $value) {
             $setMethod = 'set' . ucwords($key);
-            if (method_exists($csvImport, $setMethod)) {
-                $csvImport->$setMethod($value);
+            if (method_exists($ohmsImport, $setMethod)) {
+                $ohmsImport->$setMethod($value);
             }
         }
-        $csvImport->setColumnMaps($columnMaps);
-        if ($csvImport->queue()) {
-            $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_START);
+        $ohmsImport->setColumnMaps($columnMaps);
+        if ($ohmsImport->queue()) {
+            $this->_dispatchImportTask($ohmsImport, OhmsImport_ImportTask::METHOD_START);
             $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');
         } else {
             $this->_helper->flashMessenger(__('Import could not be started. Please check error logs for more details.'), 'error');
@@ -184,10 +187,10 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     }
 
     /**
-     * For import of Omeka.net CSV.
+     * For import of Omeka.net OHMS.
      * Check if all needed Elements are present.
      */
-    public function checkOmekaCsvAction()
+    public function checkOmekaOhmsAction()
     {
         $elementTable = get_db()->getTable('Element');
         $skipColumns = array('itemType',
@@ -236,14 +239,14 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         }
 
         if (!$hasError) {
-            $this->_helper->redirector->goto('omeka-csv');
+            $this->_helper->redirector->goto('omeka-ohms');
         }
     }
 
     /**
      * Create and queue a new import from Omeka.net.
      */
-    public function omekaCsvAction()
+    public function omekaOhmsAction()
     {
         // specify the export format's file and tag delimiters
         // do not allow the user to specify it
@@ -255,43 +258,43 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
         foreach ($headings as $heading) {
             switch ($heading) {
                 case 'collection':
-                    $columnMaps[] = new CsvImport_ColumnMap_Collection($heading);
+                    $columnMaps[] = new OhmsImport_ColumnMap_Collection($heading);
                     break;
                 case 'itemType':
-                    $columnMaps[] = new CsvImport_ColumnMap_ItemType($heading);
+                    $columnMaps[] = new OhmsImport_ColumnMap_ItemType($heading);
                     break;
                 case 'file':
-                    $columnMaps[] = new CsvImport_ColumnMap_File($heading, $fileDelimiter);
+                    $columnMaps[] = new OhmsImport_ColumnMap_File($heading, $fileDelimiter);
                     break;
                 case 'tags':
-                    $columnMaps[] = new CsvImport_ColumnMap_Tag($heading, $tagDelimiter);
+                    $columnMaps[] = new OhmsImport_ColumnMap_Tag($heading, $tagDelimiter);
                     break;
                 case 'public':
-                    $columnMaps[] = new CsvImport_ColumnMap_Public($heading);
+                    $columnMaps[] = new OhmsImport_ColumnMap_Public($heading);
                     break;
                 case 'featured':
-                    $columnMaps[] = new CsvImport_ColumnMap_Featured($heading);
+                    $columnMaps[] = new OhmsImport_ColumnMap_Featured($heading);
                     break;
                 default:
-                    $columnMaps[] = new CsvImport_ColumnMap_ExportedElement($heading);
+                    $columnMaps[] = new OhmsImport_ColumnMap_ExportedElement($heading);
                     break;
             }
         }
-        $csvImport = new CsvImport_Import();
+        $ohmsImport = new OhmsImport_Import();
 
         //this is the clever way that mapColumns action sets the values passed along from indexAction
-        //many will be irrelevant here, since CsvImport allows variable itemTypes and Collection
+        //many will be irrelevant here, since OhmsImport allows variable itemTypes and Collection
 
         //@TODO: check if variable itemTypes and Collections breaks undo. It probably should, actually
         foreach ($this->session->getIterator() as $key => $value) {
             $setMethod = 'set' . ucwords($key);
-            if (method_exists($csvImport, $setMethod)) {
-                $csvImport->$setMethod($value);
+            if (method_exists($ohmsImport, $setMethod)) {
+                $ohmsImport->$setMethod($value);
             }
         }
-        $csvImport->setColumnMaps($columnMaps);
-        if ($csvImport->queue()) {
-            $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_START);
+        $ohmsImport->setColumnMaps($columnMaps);
+        if ($ohmsImport->queue()) {
+            $this->_dispatchImportTask($ohmsImport, OhmsImport_ImportTask::METHOD_START);
             $this->_helper->flashMessenger(__('Import started. Reload this page for status updates.'), 'success');
         } else {
             $this->_helper->flashMessenger(__('Import could not be started. Please check error logs for more details.'), 'error');
@@ -317,9 +320,9 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
      */
     public function undoImportAction()
     {
-        $csvImport = $this->_helper->db->findById();
-        if ($csvImport->queueUndo()) {
-            $this->_dispatchImportTask($csvImport, CsvImport_ImportTask::METHOD_UNDO);
+        $ohmsImport = $this->_helper->db->findById();
+        if ($ohmsImport->queueUndo()) {
+            $this->_dispatchImportTask($ohmsImport, OhmsImport_ImportTask::METHOD_UNDO);
             $this->_helper->flashMessenger(__('Undo import started. Reload this page for status updates.'), 'success');
         } else {
             $this->_helper->flashMessenger(__('Undo import could not be started. Please check error logs for more details.'), 'error');
@@ -333,14 +336,14 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
      */
     public function clearHistoryAction()
     {
-        $csvImport = $this->_helper->db->findById();
-        $importedItemCount = $csvImport->getImportedItemCount();
+        $ohmsImport = $this->_helper->db->findById();
+        $importedItemCount = $ohmsImport->getImportedItemCount();
 
-        if ($csvImport->isUndone() ||
-            $csvImport->isUndoImportError() ||
-            $csvImport->isOtherError() ||
-            ($csvImport->isImportError() && $importedItemCount == 0)) {
-            $csvImport->delete();
+        if ($ohmsImport->isUndone() ||
+            $ohmsImport->isUndoImportError() ||
+            $ohmsImport->isOtherError() ||
+            ($ohmsImport->isImportError() && $importedItemCount == 0)) {
+            $ohmsImport->delete();
             $this->_helper->flashMessenger(__('Cleared import from the history.'), 'success');
         } else {
             $this->_helper->flashMessenger(__('Cannot clear import history.'), 'error');
@@ -349,15 +352,15 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     }
 
     /**
-     * Get the main Csv Import form.
+     * Get the main Ohms Import form.
      *
-     * @return CsvImport_Form_Main
+     * @return OhmsImport_Form_Main
      */
     protected function _getMainForm()
     {
-        require_once CSV_IMPORT_DIRECTORY . '/forms/Main.php';
-        $csvConfig = $this->_getPluginConfig();
-        $form = new CsvImport_Form_Main($csvConfig);
+        require_once OHMS_IMPORT_DIRECTORY . '/forms/Main.php';
+        $ohmsConfig = $this->_getPluginConfig();
+        $form = new OhmsImport_Form_Main($ohmsConfig);
         return $form;
     }
 
@@ -370,8 +373,8 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     {
         if (!$this->_pluginConfig) {
             $config = $this->getInvokeArg('bootstrap')->config->plugins;
-            if ($config && isset($config->CsvImport)) {
-                $this->_pluginConfig = $config->CsvImport->toArray();
+            if ($config && isset($config->OhmsImport)) {
+                $this->_pluginConfig = $config->OhmsImport->toArray();
             }
             if (!array_key_exists('fileDestination', $this->_pluginConfig)) {
                 $this->_pluginConfig['fileDestination'] =
@@ -404,29 +407,29 @@ class CsvImport_IndexController extends Omeka_Controller_AbstractActionControlle
     /**
      * Dispatch an import task.
      *
-     * @param CsvImport_Import $csvImport The import object
-     * @param string $method The method name to run in the CsvImport_Import object
+     * @param OhmsImport_Import $ohmsImport The import object
+     * @param string $method The method name to run in the OhmsImport_Import object
      */
-    protected function _dispatchImportTask($csvImport, $method = null)
+    protected function _dispatchImportTask($ohmsImport, $method = null)
     {
         if ($method === null) {
-            $method = CsvImport_ImportTask::METHOD_START;
+            $method = OhmsImport_ImportTask::METHOD_START;
         }
-        $csvConfig = $this->_getPluginConfig();
+        $ohmsConfig = $this->_getPluginConfig();
 
         $jobDispatcher = Zend_Registry::get('job_dispatcher');
-        $jobDispatcher->setQueueName(CsvImport_ImportTask::QUEUE_NAME);
+        $jobDispatcher->setQueueName(OhmsImport_ImportTask::QUEUE_NAME);
         try {
-            $jobDispatcher->sendLongRunning('CsvImport_ImportTask',
+            $jobDispatcher->sendLongRunning('OhmsImport_ImportTask',
                 array(
-                    'importId' => $csvImport->id,
-                    'memoryLimit' => @$csvConfig['memoryLimit'],
-                    'batchSize' => @$csvConfig['batchSize'],
+                    'importId' => $ohmsImport->id,
+                    'memoryLimit' => @$ohmsConfig['memoryLimit'],
+                    'batchSize' => @$ohmsConfig['batchSize'],
                     'method' => $method,
                 )
             );
         } catch (Exception $e) {
-            $csvImport->setStatus(CsvImport_Import::OTHER_ERROR);
+            $ohmsImport->setStatus(OhmsImport_Import::OTHER_ERROR);
             throw $e;
         }
     }
