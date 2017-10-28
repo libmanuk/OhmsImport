@@ -50,10 +50,15 @@
 * the import is completed.
 *
 *
-* @copyright Copyright 2008-2012 Roy Rosenzweig Center for History and New Media
+* @copyright Copyright 2017 Eric C. Weig
 * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
 * @package OhmsImport
 */
+/**
+ *
+ * Based on the CSVImport plugin by Roy Rosenzweig Center for History and New Media.
+ * 
+ */
 
 defined('OHMS_IMPORT_DIRECTORY') or define('OHMS_IMPORT_DIRECTORY', dirname(__FILE__));
 
