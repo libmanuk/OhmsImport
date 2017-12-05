@@ -73,15 +73,12 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $ohmsobjtxt = $ohms->record[0]->transcript;
 
 
-        $dcdescription = str_replace("\n", "^", "$dcdescription");
-        $dcdescription = str_replace("^", "\r", "$dcdescription");
-        $ohmsobjtxt = str_replace("\n", "^", "$ohmsobjtxt");
-        $ohmsobjtxt = str_replace("^", "\r", "$ohmsobjtxt");        
+        $dcdescription = str_replace("\n", "\r", "$dcdescription");
+        $ohmsobjtxt = str_replace("\n", " ", "$ohmsobjtxt");
+        $ohmsobjtxt = str_replace("\r", " ", "$ohmsobjtxt");
+                
 
-        $preohmsfile = "Dublin Core: Title^Dublin Core: Description^Item Type Metadata: Interview Accession^Item Type Metadata: Interviewer Name^Item Type Metadata: Interviewee Name^Item Type Metadata: OHMS Object^Item Type Metadata: Interview Digital File Name^Item Type Metadata: Interview Date^Item Type Metadata: Interview LC Subject^Item Type Metadata: Interview Keyword^Item Type Metadata: Interview Format^Item Type Metadata: OHMS Object Text\n$dctitle^$dcdescription^$accession^$interviewer^$interviewee^$xmllocation^$mediaurl^$date^$subject^$keyword^$clip_format^$ohmsobjtxt";
-        
-        $preohmsfile = str_replace("\n", " ", "$preohmsfile");
-        $ohmsfile = str_replace("\r", " ", "$preohmsfile");
+        $ohmsfile = "Dublin Core: Title^Dublin Core: Description^Item Type Metadata: Interview Accession^Item Type Metadata: Interviewer Name^Item Type Metadata: Interviewee Name^Item Type Metadata: OHMS Object^Item Type Metadata: Interview Digital File Name^Item Type Metadata: Interview Date^Item Type Metadata: Interview LC Subject^Item Type Metadata: Interview Keyword^Item Type Metadata: Interview Format^Item Type Metadata: OHMS Object Text\n$dctitle^$dcdescription^$accession^$interviewer^$interviewee^$xmllocation^$mediaurl^$date^$subject^$keyword^$clip_format^$ohmsobjtxt";
 
         $writefile="$filePath";
 
