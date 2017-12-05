@@ -51,7 +51,10 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $xmlstr = file_get_contents($filePath, true);
 
         $xmlstr2 = str_replace("</subject><subject>", "@", "$xmlstr");
-
+        
+        $search = "\n";
+        $replace = " ";
+        
         $contents = str_replace("</keyword><keyword>", "@", "$xmlstr2");
 
         $ohms = new SimpleXMLElement($contents);
@@ -69,20 +72,21 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $clip_format = $ohms->record->mediafile->clip_format;
         $ohmsobjtxt = $ohms->record[0]->transcript;
 
+
+        $dcdescription = str_replace("\n", "^", "$dcdescription");
+        $dcdescription = str_replace("^", "\r", "$dcdescription");
+        $ohmsobjtxt = str_replace("\n", "^", "$ohmsobjtxt");
+        $ohmsobjtxt = str_replace("^", "\r", "$ohmsobjtxt");        
+
         $preohmsfile = "Dublin Core: Title^Dublin Core: Description^Item Type Metadata: Interview Accession^Item Type Metadata: Interviewer Name^Item Type Metadata: Interviewee Name^Item Type Metadata: OHMS Object^Item Type Metadata: Interview Digital File Name^Item Type Metadata: Interview Date^Item Type Metadata: Interview LC Subject^Item Type Metadata: Interview Keyword^Item Type Metadata: Interview Format^Item Type Metadata: OHMS Object Text\n$dctitle^$dcdescription^$accession^$interviewer^$interviewee^$xmllocation^$mediaurl^$date^$subject^$keyword^$clip_format^$ohmsobjtxt";
-
-
-        $ohmsfile = str_replace("\n\n", "@", "$preohmsfile");
+        
+        $preohmsfile = str_replace("\n", " ", "$preohmsfile");
+        $ohmsfile = str_replace("\r", " ", "$preohmsfile");
 
         $writefile="$filePath";
 
         file_put_contents($writefile, $ohmsfile, LOCK_EX);
 
-        //echo "<pre>$ohmsfile</pre><p>$filePath</p><p>$writefile</p>";
-        //die;
-
-
-        //$columnDelimiter = $form->getValue('column_delimiter');
         $columnDelimiter = "^";
 
         $file = new OhmsImport_File($filePath, $columnDelimiter);
