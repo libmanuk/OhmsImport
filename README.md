@@ -1,5 +1,5 @@
 # OHMSImport
-Upload a valid OHMS XML file into Omeka.
+Upload a valid .zip file containing valid OHMS XML files into Omeka.
 
 # Omeka MySQL Change
 
