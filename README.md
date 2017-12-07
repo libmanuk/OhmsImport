@@ -7,7 +7,7 @@ In order to accommodate OHMS XML files with lengthy transcripts, the following M
 
 In the 'omek_sessions' table, the field with Name 'data' should have Type set to 'mediumblob'.
 
-# Possible Issues
+# Possible Issue
 
 Be sure to set background.php.path correctly in the Omeka application config.  This path will vary depending on your server setup.
 
