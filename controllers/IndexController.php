@@ -6,6 +6,11 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  * @package OhmsImport
  */
+ 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ 
+ 
 class OhmsImport_IndexController extends Omeka_Controller_AbstractActionController
 {
     protected $_browseRecordsPerPage = 10;
@@ -47,38 +52,86 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
 
 
         $filePath = $form->ohms_file->getFileName();
-
-        $xmlstr = file_get_contents($filePath, true);
-
-        $xmlstr2 = str_replace("</subject><subject>", "@", "$xmlstr");
         
-        $search = "\n";
-        $replace = " ";
+        //OHMS XML handling
         
-        $contents = str_replace("</keyword><keyword>", "@", "$xmlstr2");
+        $plugin_path = realpath(__DIR__ . '/..');
+        $zip_csv_path = "$plugin_path/zips/zcsv.csv";
+        $zip_extract_path = "$plugin_path/zips/temp_for_zip_extract/";
+        $zip_package_path = "$plugin_path/zips/temporary.zip";
+        
+        if (file_exists($zip_csv_path)) {
+            unlink($zip_csv_path);
+                } else {
+            //do nothing
+        }
+        
+        if (file_exists($zip_extract_path)) {
+            $zdirfiles = glob($zip_extract_path .'*'); // get all file names
 
-        $ohms = new SimpleXMLElement($contents);
+        foreach($zdirfiles as $zdirfile){ // iterate files
+          if(is_file($zdirfile))
+        unlink($zdirfile); // delete file
+        }
 
-        $dctitle = $ohms->record[0]->title;
-        $dcdescription = $ohms->record[0]->description;
-        $accession = $ohms->record[0]->accession;
-        $subject = $ohms->record[0]->subject;
-        $keyword = $ohms->record[0]->keyword;
-        $interviewee = $ohms->record[0]->interviewee;
-        $interviewer = $ohms->record[0]->interviewer;
-        $mediaurl = $ohms->record[0]->media_url;
-        $date = $ohms->record[0]->date;
-        $xmllocation = $ohms->record[0]->xmllocation;
-        $clip_format = $ohms->record->mediafile->clip_format;
-        $ohmsobjtxt = $ohms->record[0]->transcript;
+        rmdir($zip_extract_path);
+                } else {
+            //do nothing
+        }
+        
+        rename("$filePath", "$zip_package_path");
+        
+        shell_exec("unzip '".$zip_package_path."' -d '".$zip_extract_path."'");
+        
+        $zfiles = glob($zip_extract_path ."*.{xml}", GLOB_BRACE);
+        
+        $zcsv = fopen("$zip_csv_path", "w");
+        
 
+    foreach($zfiles as $zfile) {
+    
+        $zfeed = file_get_contents($zfile, true); 
+    
+        $zfeed = str_replace("</subject><subject>", "@", "$zfeed");
+        
+        $zfeed = str_replace("</keyword><keyword>", "@", "$zfeed");
+
+        $zfeed = str_replace("</interviewer><interviewer>", "@", "$zfeed");
+        
+        $zfeed = str_replace("</interviewee><interviewee>", "@", "$zfeed");
+    
+        $zitem = simplexml_load_string($zfeed);
+    
+        $dctitle = $zitem->record[0]->title;
+        $dcdescription = $zitem->record[0]->description;
+        $accession = $zitem->record[0]->accession;
+        $subject = $zitem->record[0]->subject;
+        $keyword = $zitem->record[0]->keyword;
+        $interviewee = $zitem->record[0]->interviewee;
+        $interviewer = $zitem->record[0]->interviewer;
+        $mediaurl = $zitem->record[0]->media_url;
+        $date = $zitem->record[0]->date;
+        $xmllocation = $zitem->record[0]->xmllocation;
+        $clip_format = $zitem->record->mediafile->clip_format;
+        $ohmsobjtxt = $zitem->record[0]->transcript;
 
         $dcdescription = str_replace("\n", "\r", "$dcdescription");
         $ohmsobjtxt = str_replace("\n", " ", "$ohmsobjtxt");
-        $ohmsobjtxt = str_replace("\r", " ", "$ohmsobjtxt");
-                
+        $ohmsobjtxt = str_replace("\r", " ", "$ohmsobjtxt");    
+    
+        $zline = "$dctitle^$dcdescription^$accession^$subject^$keyword^$interviewee^$interviewer^$mediaurl^$date^$xmllocation^$clip_format^$ohmsobjtxt\n";
+    
+        $zbuild = file_put_contents($zip_csv_path, $zline.PHP_EOL , FILE_APPEND | LOCK_EX);
+        
+        }
 
-        $ohmsfile = "Dublin Core: Title^Dublin Core: Description^Item Type Metadata: Interview Accession^Item Type Metadata: Interviewer Name^Item Type Metadata: Interviewee Name^Item Type Metadata: OHMS Object^Item Type Metadata: Interview Digital File Name^Item Type Metadata: Interview Date^Item Type Metadata: Interview LC Subject^Item Type Metadata: Interview Keyword^Item Type Metadata: Interview Format^Item Type Metadata: OHMS Object Text\n$dctitle^$dcdescription^$accession^$interviewer^$interviewee^$xmllocation^$mediaurl^$date^$subject^$keyword^$clip_format^$ohmsobjtxt";
+        $zheader = "Dublin Core: Title^Dublin Core: Description^Item Type Metadata: Interview Accession^Item Type Metadata: Interviewer Name^Item Type Metadata: Interviewee Name^Item Type Metadata: OHMS Object^Item Type Metadata: Interview Digital File Name^Item Type Metadata: Interview Date^Item Type Metadata: Interview LC Subject^Item Type Metadata: Interview Keyword^Item Type Metadata: Interview Format^Item Type Metadata: OHMS Object Text";
+        
+        $zfileContent = file_get_contents($zip_csv_path);
+
+        file_put_contents($zip_csv_path, $zheader . "\n" . $zfileContent);
+  
+        $ohmsfile = file_get_contents($zip_csv_path);
 
         $writefile="$filePath";
 
@@ -93,9 +146,6 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
                 . ' ' . $file->getErrorString(), 'error');
             return;
         }
-
-
-
 
         $this->session->setExpirationHops(2);
         $this->session->originalFilename = $_FILES['ohms_file']['name'];
