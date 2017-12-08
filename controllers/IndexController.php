@@ -55,29 +55,12 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         
         //OHMS XML handling
         
+        $zrandom_name = str_replace("/tmp/", "", "$filePath");
+        
         $plugin_path = realpath(__DIR__ . '/..');
-        $zip_csv_path = "$plugin_path/zips/zcsv.csv";
-        $zip_extract_path = "$plugin_path/zips/temp_for_zip_extract/";
-        $zip_package_path = "$plugin_path/zips/temporary.zip";
-        
-        if (file_exists($zip_csv_path)) {
-            unlink($zip_csv_path);
-                } else {
-            //do nothing
-        }
-        
-        if (file_exists($zip_extract_path)) {
-            $zdirfiles = glob($zip_extract_path .'*'); // get all file names
-
-        foreach($zdirfiles as $zdirfile){ // iterate files
-          if(is_file($zdirfile))
-        unlink($zdirfile); // delete file
-        }
-
-        rmdir($zip_extract_path);
-                } else {
-            //do nothing
-        }
+        $zip_csv_path = "$plugin_path/zips/$zrandom_name.csv";
+        $zip_extract_path = "$plugin_path/zips/$zrandom_name/";
+        $zip_package_path = "$plugin_path/zips/$zrandom_name.zip";
         
         rename("$filePath", "$zip_package_path");
         
@@ -136,6 +119,33 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $writefile="$filePath";
 
         file_put_contents($writefile, $ohmsfile, LOCK_EX);
+        
+        //clean up zip
+        
+        if (file_exists($zip_csv_path)) {
+        unlink($zip_csv_path);
+                } else {
+            //do nothing
+        }
+        
+        if (file_exists($zip_package_path)) {
+        unlink($zip_package_path);
+                } else {
+            //do nothing
+        }
+        
+        if (file_exists($zip_extract_path)) {
+            $zdirfiles = glob($zip_extract_path .'*'); // get all file names
+
+        foreach($zdirfiles as $zdirfile){ // iterate files
+          if(is_file($zdirfile))
+        unlink($zdirfile); // delete file
+        }
+
+        rmdir($zip_extract_path);
+                } else {
+            //do nothing
+        }
 
         $columnDelimiter = "^";
 
