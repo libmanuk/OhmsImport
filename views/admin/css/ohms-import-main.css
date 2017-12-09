@@ -1,3 +1,11 @@
+#item_type_id {
+    display: none;
+}
+
+#item_type_id-label {
+    display: none;
+}
+
 #ohmsfimport {
   overflow: visible;
 }
