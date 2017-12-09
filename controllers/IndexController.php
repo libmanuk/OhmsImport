@@ -50,10 +50,7 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
             return;
         }
 
-
         $filePath = $form->ohms_file->getFileName();
-        
-        //OHMS XML handling
         
         $zrandom_name = str_replace("/tmp/", "", "$filePath");
         
@@ -69,7 +66,6 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $zfiles = glob($zip_extract_path ."*.{xml}", GLOB_BRACE);
         
         $zcsv = fopen("$zip_csv_path", "w");
-        
 
     foreach($zfiles as $zfile) {
     
@@ -120,8 +116,6 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
 
         file_put_contents($writefile, $ohmsfile, LOCK_EX);
         
-        //clean up zip
-        
         if (file_exists($zip_csv_path)) {
         unlink($zip_csv_path);
                 } else {
@@ -135,11 +129,11 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         }
         
         if (file_exists($zip_extract_path)) {
-            $zdirfiles = glob($zip_extract_path .'*'); // get all file names
+            $zdirfiles = glob($zip_extract_path .'*'); 
 
-        foreach($zdirfiles as $zdirfile){ // iterate files
+        foreach($zdirfiles as $zdirfile){
           if(is_file($zdirfile))
-        unlink($zdirfile); // delete file
+        unlink($zdirfile); 
         }
 
         rmdir($zip_extract_path);
