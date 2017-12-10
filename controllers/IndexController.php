@@ -108,7 +108,7 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         
         }
 
-        $zheader = "Dublin Core: Title^Dublin Core: Description^Dublin Core: Identifier^OHMS Element Set: Interviewer^OHMS Element Set: Interviewee^OHMS Element Set: OHMS Object^OHMS Object: Interview Digital File Name^Dublin Core: Subject^Item Type Metadata: Interview Keyword^Dublin Core: Date^OHMS Element Set: Interview Format^OHMS Element Set: OHMS Object Text";
+        $zheader = "Dublin Core: Title^Dublin Core: Description^Dublin Core: Identifier^OHMS Element Set: Interviewer^OHMS Element Set: Interviewee^OHMS Element Set: OHMS Object^OHMS Element Set: Interview Digital File Name^Dublin Core: Subject^Item Type Metadata: Interview Keyword^Dublin Core: Date^OHMS Element Set: Interview Format^OHMS Element Set: OHMS Object Text";
         
         $zfileContent = file_get_contents($zip_csv_path);
 
