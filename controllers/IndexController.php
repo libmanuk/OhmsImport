@@ -50,7 +50,10 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
             return;
         }
 
+
         $filePath = $form->ohms_file->getFileName();
+        
+        //OHMS XML handling
         
         $zrandom_name = str_replace("/tmp/", "", "$filePath");
         
@@ -66,6 +69,7 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $zfiles = glob($zip_extract_path ."*.{xml}", GLOB_BRACE);
         
         $zcsv = fopen("$zip_csv_path", "w");
+        
 
     foreach($zfiles as $zfile) {
     
@@ -98,13 +102,13 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $ohmsobjtxt = str_replace("\n", " ", "$ohmsobjtxt");
         $ohmsobjtxt = str_replace("\r", " ", "$ohmsobjtxt");    
     
-        $zline = "$dctitle^$dcdescription^$accession^$subject^$keyword^$interviewee^$interviewer^$mediaurl^$date^$xmllocation^$clip_format^$ohmsobjtxt\n";
+        $zline = "$dctitle^$dcdescription^$accession^$interviewer^$interviewee^$xmllocation^$mediaurl^$subject^$keyword^$date^$clip_format^$ohmsobjtxt\n";
     
         $zbuild = file_put_contents($zip_csv_path, $zline.PHP_EOL , FILE_APPEND | LOCK_EX);
         
         }
 
-        $zheader = "Dublin Core: Title^Dublin Core: Description^Item Type Metadata: Interview Accession^Item Type Metadata: Interviewer Name^Item Type Metadata: Interviewee Name^Item Type Metadata: OHMS Object^Item Type Metadata: Interview Digital File Name^Item Type Metadata: Interview Date^Item Type Metadata: Interview LC Subject^Item Type Metadata: Interview Keyword^Item Type Metadata: Interview Format^Item Type Metadata: OHMS Object Text";
+        $zheader = "Dublin Core: Title^Dublin Core: Description^Dublin Core: Identifier^OHMS Element Set: Interviewer^OHMS Element Set: Interviewee^OHMS Element Set: OHMS Object^OHMS Object: Interview Digital File Name^Dublin Core: Subject^Item Type Metadata: Interview Keyword^Dublin Core: Date^OHMS Element Set: Interview Format^OHMS Element Set: OHMS Object Text";
         
         $zfileContent = file_get_contents($zip_csv_path);
 
@@ -115,6 +119,8 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $writefile="$filePath";
 
         file_put_contents($writefile, $ohmsfile, LOCK_EX);
+        
+        //clean up zip
         
         if (file_exists($zip_csv_path)) {
         unlink($zip_csv_path);
@@ -129,11 +135,11 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         }
         
         if (file_exists($zip_extract_path)) {
-            $zdirfiles = glob($zip_extract_path .'*'); 
+            $zdirfiles = glob($zip_extract_path .'*'); // get all file names
 
-        foreach($zdirfiles as $zdirfile){
+        foreach($zdirfiles as $zdirfile){ // iterate files
           if(is_file($zdirfile))
-        unlink($zdirfile); 
+        unlink($zdirfile); // delete file
         }
 
         rmdir($zip_extract_path);
@@ -489,3 +495,4 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         }
     }
 }
+
