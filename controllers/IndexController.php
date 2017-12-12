@@ -88,11 +88,12 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $dctitle = $zitem->record[0]->title;
         $dcdescription = $zitem->record[0]->description;
         $accession = $zitem->record[0]->accession;
+        $int_identifier = $zitem->record[0]->accession;
         $subject = $zitem->record[0]->subject;
         $keyword = $zitem->record[0]->keyword;
         $interviewee = $zitem->record[0]->interviewee;
         $interviewer = $zitem->record[0]->interviewer;
-        $mediaurl = $zitem->record[0]->media_url;
+        $duration = $zitem->record[0]->duration;
         $date = $zitem->record[0]->date;
         $xmllocation = $zitem->record[0]->xmllocation;
         $clip_format = $zitem->record->mediafile->clip_format;
@@ -100,15 +101,16 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
 
         $dcdescription = str_replace("\n", "\r", "$dcdescription");
         $ohmsobjtxt = str_replace("\n", " ", "$ohmsobjtxt");
-        $ohmsobjtxt = str_replace("\r", " ", "$ohmsobjtxt");    
+        $ohmsobjtxt = str_replace("\r", " ", "$ohmsobjtxt");  
+        $int_identifier = str_replace(" ", "", "$int_identifier");
     
-        $zline = "$dctitle^$dcdescription^$accession^$interviewer^$interviewee^$xmllocation^$mediaurl^$subject^$keyword^$date^$clip_format^$ohmsobjtxt\n";
+        $zline = "$dctitle^$dcdescription^$int_identifier^$interviewer^$interviewee^$xmllocation^$mediaurl^$subject^$keyword^$date^$clip_format^$accession^$ohmsobjtxt\n";
     
         $zbuild = file_put_contents($zip_csv_path, $zline.PHP_EOL , FILE_APPEND | LOCK_EX);
         
         }
 
-        $zheader = "Dublin Core: Title^Dublin Core: Description^Dublin Core: Identifier^OHMS Element Set: Interviewer^OHMS Element Set: Interviewee^OHMS Element Set: OHMS Object^OHMS Element Set: Interview Digital File Name^Dublin Core: Subject^Item Type Metadata: Interview Keyword^Dublin Core: Date^OHMS Element Set: Interview Format^OHMS Element Set: OHMS Object Text";
+        $zheader = "Dublin Core: Title^Dublin Core: Description^Dublin Core: Identifier^OHMS Element Set: Interviewer^OHMS Element Set: Interviewee^OHMS Element Set: OHMS Object^OHMS Element Set: Interview Duration^Dublin Core: Subject^Item Type Metadata: Interview Keyword^Dublin Core: Date^OHMS Element Set: Interview Format^OHMS Element Set: Interview Accession^OHMS Element Set: OHMS Object Text";
         
         $zfileContent = file_get_contents($zip_csv_path);
 
