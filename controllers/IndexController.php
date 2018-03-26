@@ -74,6 +74,14 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
     foreach($zfiles as $zfile) {
     
         $zfeed = file_get_contents($zfile, true); 
+     
+        $ohmsobjtxt = nl2br($zfeed);
+        
+        $ohmsobjtxt = str_replace("><", "> <", $ohmsobjtxt);
+        
+        $ohmsobjtxt = str_replace(";", " ; ", $ohmsobjtxt);
+        
+        $ohmsobjtxt = strip_tags($ohmsobjtxt,"");
     
         $zfeed = str_replace("</subject><subject>", "@", "$zfeed");
         
@@ -97,7 +105,7 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $date = $zitem->record[0]->date;
         $xmllocation = $zitem->record[0]->xmllocation;
         $clip_format = $zitem->record->mediafile->clip_format;
-        $ohmsobjtxt = $zitem->record[0]->transcript;
+        //$ohmsobjtxt = $zitem->record[0]->transcript;
 
         $dcdescription = str_replace("\n", "\r", "$dcdescription");
         $ohmsobjtxt = str_replace("\n", " ", "$ohmsobjtxt");
