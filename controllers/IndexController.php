@@ -112,13 +112,13 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $ohmsobjtxt = str_replace("\r", " ", "$ohmsobjtxt");  
         $int_identifier = str_replace(" ", "", "$int_identifier");
     
-        $zline = "$dctitle^$dcdescription^$int_identifier^$interviewer^$interviewee^$xmllocation^$mediaurl^$subject^$keyword^$date^$clip_format^$accession^$ohmsobjtxt\n";
+        $zline = "$dctitle^$dcdescription^$int_identifier^$interviewer^$interviewee^$xmllocation^$mediaurl^$subject^$keyword^$date^$clip_format^$ohmsobjtxt\n";
     
         $zbuild = file_put_contents($zip_csv_path, $zline.PHP_EOL , FILE_APPEND | LOCK_EX);
         
         }
 
-        $zheader = "Dublin Core: Title^Dublin Core: Description^Dublin Core: Identifier^Item Type Metadata: Interviewer^Item Type Metadata: Interviewee^Item Type Metadata: OHMS Object^Item Type Metadata: Duration^Dublin Core: Subject^Item Type Metadata: Interview Keyword^Dublin Core: Date^Dublin Core: Format^OHMS Element Set: Interview Accession^Item Type Metadata: OHMS Object Text";
+        $zheader = "Dublin Core: Title^Dublin Core: Description^Dublin Core: Identifier^Item Type Metadata: Interviewer^Item Type Metadata: Interviewee^Item Type Metadata: OHMS Object^Item Type Metadata: Duration^Dublin Core: Subject^Item Type Metadata: Interview Keyword^Dublin Core: Date^Dublin Core: Format^Item Type Metadata: OHMS Object Text";
         
         $zfileContent = file_get_contents($zip_csv_path);
 
