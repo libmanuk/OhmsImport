@@ -19,3 +19,6 @@ Example line: background.php.path = "/usr/local/bin/php"
 
 This script is based on the CsvImport plugin which is mantained and was originally developed by the Roy Rosenzweig Center for History and New Media. Original code can be found at https://github.com/omeka/plugin-CsvImport
 
+##
+This plugin was created through a partnership between the Louie B. Nunn Center for Oral History and West Chester University and a collaboration between Eric Weig, Doug Boyd, and Janneken Smucker.   
+
