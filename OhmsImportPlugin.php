@@ -168,29 +168,29 @@ class OhmsImportPlugin extends Omeka_Plugin_AbstractPlugin
 
         // Do this first because MySQL will complain about any ALTERs to a table with an
         // invalid default if we don't fix it first
-        if (version_compare($oldVersion, '2.0.3', '<=')) {
-            $sql = "ALTER TABLE `{$db->prefix}ohms_import_imports` MODIFY `added` timestamp NOT NULL default '2000-01-01 00:00:00'";
-            $db->query($sql);
-        }
+        // if (version_compare($oldVersion, '2.0.3', '<=')) {
+        //     $sql = "ALTER TABLE `{$db->prefix}ohms_import_imports` MODIFY `added` timestamp NOT NULL default '2000-01-01 00:00:00'";
+        //     $db->query($sql);
+        // }
 
-        if (version_compare($oldVersion, '2.0-dev', '<=')) {
-            $sql = "UPDATE `{$db->prefix}ohms_import_imports` SET `status` = ? WHERE `status` = ?";
-            $db->query($sql, array('other_error', 'error'));
-        }
+        // if (version_compare($oldVersion, '2.0-dev', '<=')) {
+        //     $sql = "UPDATE `{$db->prefix}ohms_import_imports` SET `status` = ? WHERE `status` = ?";
+        //     $db->query($sql, array('other_error', 'error'));
+        // }
 
-        if (version_compare($oldVersion, '2.0', '<=')) {
-            set_option(OhmsImport_RowIterator::COLUMN_DELIMITER_OPTION_NAME, OhmsImport_RowIterator::DEFAULT_COLUMN_DELIMITER);
-            set_option(OhmsImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, OhmsImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER);
-            set_option(OhmsImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, OhmsImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER);
-            set_option(OhmsImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, OhmsImport_ColumnMap_File::DEFAULT_FILE_DELIMITER);
-        }   
+        // if (version_compare($oldVersion, '2.0', '<=')) {
+        //     set_option(OhmsImport_RowIterator::COLUMN_DELIMITER_OPTION_NAME, OhmsImport_RowIterator::DEFAULT_COLUMN_DELIMITER);
+        //     set_option(OhmsImport_ColumnMap_Element::ELEMENT_DELIMITER_OPTION_NAME, OhmsImport_ColumnMap_Element::DEFAULT_ELEMENT_DELIMITER);
+        //     set_option(OhmsImport_ColumnMap_Tag::TAG_DELIMITER_OPTION_NAME, OhmsImport_ColumnMap_Tag::DEFAULT_TAG_DELIMITER);
+        //     set_option(OhmsImport_ColumnMap_File::FILE_DELIMITER_OPTION_NAME, OhmsImport_ColumnMap_File::DEFAULT_FILE_DELIMITER);
+        // }   
         
-        if(version_compare($oldVersion, '2.0.1', '<=')) {
-            $sql = "ALTER TABLE `{$db->prefix}ohms_import_imports` CHANGE `item_type_id` `item_type_id` INT( 10 ) UNSIGNED NULL ,
-                    CHANGE `collection_id` `collection_id` INT( 10 ) UNSIGNED NULL
-            ";
-            $db->query($sql);
-        }
+        // if(version_compare($oldVersion, '2.0.1', '<=')) {
+        //     $sql = "ALTER TABLE `{$db->prefix}ohms_import_imports` CHANGE `item_type_id` `item_type_id` INT( 10 ) UNSIGNED NULL ,
+        //             CHANGE `collection_id` `collection_id` INT( 10 ) UNSIGNED NULL
+        //     ";
+        //     $db->query($sql);
+        // }
     }
 
     /**
