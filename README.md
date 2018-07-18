@@ -15,6 +15,9 @@ Look in: /public_html/<omeka_install>/application/config/config.ini
 
 Example line: background.php.path = "/usr/local/bin/php"
 
+
+**For more information, please view <a href="https://github.com/libmanuk/OHMSPluginSuiteUserGuide">OHMS Plugin Suite Manual</a>.
+
 # Attribution
 
 This script is based on the CsvImport plugin which is mantained and was originally developed by the Roy Rosenzweig Center for History and New Media. Original code can be found at https://github.com/omeka/plugin-CsvImport
