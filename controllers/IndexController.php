@@ -64,7 +64,13 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         
         rename("$filePath", "$zip_package_path");
         
-        shell_exec("unzip '".$zip_package_path."' -d '".$zip_extract_path."'");
+        mkdir("$zip_extract_path");
+        
+        $zip = new ZipArchive;
+        if ($zip->open("$zip_package_path") === TRUE) {
+            $zip->extractTo("$zip_extract_path");
+            $zip->close();
+        } 
         
         $zfiles = glob($zip_extract_path ."*.{xml}", GLOB_BRACE);
         
