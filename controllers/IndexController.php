@@ -108,10 +108,16 @@ class OhmsImport_IndexController extends Omeka_Controller_AbstractActionControll
         $interviewee = $zitem->record[0]->interviewee;
         $interviewer = $zitem->record[0]->interviewer;
         $duration = $zitem->record[0]->duration;
-        $date = $zitem->record[0]->date;
+        $ldate = $zitem->record[0]->date;
+        $date = $zitem->record[0]->date['value'];
         $xmllocation = $zitem->record[0]->xmllocation;
         $clip_format = $zitem->record->mediafile->clip_format;
         //$ohmsobjtxt = $zitem->record[0]->transcript;
+     
+        // make sure the date is set as attribute, else try to get legacy date from element
+        if (empty($date)) {
+        $date = $ldate;
+        }
 
         $dcdescription = str_replace("\n", "\r", "$dcdescription");
         $ohmsobjtxt = str_replace("\n", " ", "$ohmsobjtxt");
