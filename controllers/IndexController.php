@@ -13,6 +13,8 @@ ini_set('display_errors', 1);
  
 class OhmsImport_IndexController extends Omeka_Controller_AbstractActionController
 {
+    public $session;
+
     protected $_browseRecordsPerPage = 10;
     protected $_pluginConfig = array();
 
