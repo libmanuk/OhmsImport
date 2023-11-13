@@ -52,7 +52,7 @@ class OhmsImport_RowIterator implements SeekableIterator
      *
      * @throws OhmsImport_DuplicateColumnException
      */
-    public function rewind()
+    public function rewind(): void
     {
         if ($this->_handle) {
             fclose($this->_handle);
@@ -79,7 +79,7 @@ class OhmsImport_RowIterator implements SeekableIterator
      *
      * @return mixed current element
      */
-    public function current()
+    public function current(): mixed
     {
         return $this->_currentRow;
     }
@@ -90,7 +90,7 @@ class OhmsImport_RowIterator implements SeekableIterator
      *
      * @return scalar
      */
-    public function key()
+    public function key(): mixed
     {
         return $this->_currentRowNumber;
     }
@@ -101,7 +101,7 @@ class OhmsImport_RowIterator implements SeekableIterator
      *
      * @throws Exception
      */
-    public function next()
+    public function next(): void
     {
         try {
             $this->_moveNext();
@@ -120,7 +120,7 @@ class OhmsImport_RowIterator implements SeekableIterator
      *
      * @param int The offset
      */
-    public function seek($index)
+    public function seek($index): void
     {
         if (!$this->_colNames) {
             $this->rewind();
@@ -163,7 +163,7 @@ class OhmsImport_RowIterator implements SeekableIterator
      *
      * @return boolean
      */
-    public function valid()
+    public function valid(): bool
     {
         if (!file_exists($this->_filePath)) {
             return false;
