@@ -93,7 +93,10 @@ class OhmsImport_File implements IteratorAggregate
         $rowIterator = $this->getIterator();
         try {
             $this->_columnNames = $rowIterator->getColumnNames();
-            $this->_columnExamples = $rowIterator->current(); 
+            $this->_columnExamples = $rowIterator->current();
+            foreach ($this->_columnExamples as $key => $value) {
+                $this->_columnExamples[$key] = substr($value, 0, 30);
+            }
         } catch (OhmsImport_DuplicateColumnException $e) {
             $this->_parseErrors[] = $e->getMessage() 
                 . ' ' . __('Please ensure that all column names are unique.');
